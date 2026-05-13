@@ -175,11 +175,14 @@ function loginWithName(name) {
     startGrowthLoop();
     startThoughtBubble();
     startFurnitureBoost();
+    initOnline();
+    startOnlineSync();
     showFloatReward(`欢迎回来，${name}！`);
   } else {
     // New player
     currentPlayer = name;
     state = getDefaultState();
+    initOnline();
     showScreen('adopt');
   }
 }
@@ -367,6 +370,7 @@ function switchTab(tabName) {
   if (tabName === 'outdoor') renderOutdoor();
   if (tabName === 'social') renderSocial();
   if (tabName === 'games') renderGamesMenu();
+  if (tabName === 'online') renderOnline();
   renderCoins();
 }
 
@@ -1010,6 +1014,197 @@ function renderInventory() {
   grid.innerHTML = Object.entries(counts).map(([item, count]) => `<div class="inventory-item">${item} ×${count}</div>`).join('');
 }
 
+// ===== Online System =====
+let onlineUnsubscribes = [];
+let giftUnsubscribe = null;
+let messageUnsubscribe = null;
+
+function initOnline() {
+  if (!Online.init()) return;
+  Online.signIn(currentPlayer).then(ok => {
+    if (ok) {
+      Online.setOnline(state);
+      updateOnlineStatus(true);
+      listenOnlineData();
+    }
+  });
+}
+
+function updateOnlineStatus(online) {
+  const el = $('#online-status');
+  if (el) {
+    el.textContent = online ? '在线' : '离线';
+    el.className = `online-status ${online ? 'online' : 'offline'}`;
+  }
+}
+
+function listenOnlineData() {
+  // Clean up previous listeners
+  onlineUnsubscribes.forEach(fn => fn());
+  onlineUnsubscribes = [];
+
+  onlineUnsubscribes.push(Online.listenOnlinePlayers(players => {
+    const list = $('#online-players-list');
+    const count = $('#online-count');
+    if (count) count.textContent = `(${players.length}人)`;
+    if (!list) return;
+    if (!players.length) { list.innerHTML = '<div class="no-data">暂无其他玩家在线</div>'; return; }
+    list.innerHTML = players.map(p => {
+      const pet = PETS[p.petType];
+      return `<div class="online-player-card" data-uid="${p.uid}"><div class="online-pet-emoji">${pet?.emoji || '🐾'}</div><span class="online-pet-name">${p.name}</span><span class="online-pet-stage">${p.stage || '幼年期'}</span></div>`;
+    }).join('');
+    list.querySelectorAll('.online-player-card').forEach(card => {
+      card.addEventListener('click', () => showPlayerDetail(card.dataset.uid));
+    });
+  }));
+
+  onlineUnsubscribes.push(Online.listenLeaderboard(players => {
+    const list = $('#leaderboard-list');
+    if (!list) return;
+    if (!players.length) { list.innerHTML = '<div class="no-data">暂无排行数据</div>'; return; }
+    list.innerHTML = players.map((p, i) => {
+      const pet = PETS[p.petType];
+      const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+      const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}`;
+      return `<div class="lb-item" data-uid="${p.uid}"><span class="lb-rank ${rankClass}">${medal}</span><span class="lb-emoji">${pet?.emoji || '🐾'}</span><div class="lb-info"><span class="lb-name">${p.name}</span><span class="lb-detail">${p.stage || '幼年期'} | 🪙${p.coins || 0}</span></div><span class="lb-intimacy">💕${p.intimacy || 0}</span></div>`;
+    }).join('');
+    list.querySelectorAll('.lb-item').forEach(item => {
+      item.addEventListener('click', () => showPlayerDetail(item.dataset.uid));
+    });
+  }));
+
+  // Listen for gifts
+  if (giftUnsubscribe) giftUnsubscribe();
+  giftUnsubscribe = Online.listenGifts(gift => {
+    showFloatReward(`${gift.from} 送了 ${gift.emoji}！`);
+    addCoins(3);
+    renderGifts();
+  });
+
+  // Listen for messages
+  if (messageUnsubscribe) messageUnsubscribe();
+  messageUnsubscribe = Online.listenMessages(msg => {
+    renderMessages();
+  });
+}
+
+async function showPlayerDetail(uid) {
+  const player = await Online.getPlayer(uid);
+  if (!player) return;
+  const pet = PETS[player.petType];
+  const modal = $('#player-detail-modal');
+  const content = $('#player-detail-content');
+  const liked = await Online.hasLiked(uid);
+
+  content.innerHTML = `
+    <div class="modal-pet-header">
+      <span class="modal-pet-emoji">${pet?.emoji || '🐾'}</span>
+      <span class="modal-pet-name">${player.name}</span>
+      <span class="modal-pet-stage">${player.stage || '幼年期'}</span>
+    </div>
+    <div class="modal-stats">
+      <div class="modal-stat"><span class="modal-stat-value">💕${player.intimacy || 0}</span><span class="modal-stat-label">亲密度</span></div>
+      <div class="modal-stat"><span class="modal-stat-value">🪙${player.coins || 0}</span><span class="modal-stat-label">金币</span></div>
+      <div class="modal-stat"><span class="modal-stat-value">😊${player.mood || 0}</span><span class="modal-stat-label">心情</span></div>
+      <div class="modal-stat"><span class="modal-stat-value">❤️${player.likes || 0}</span><span class="modal-stat-label">获赞</span></div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-action-btn" id="modal-like">${liked ? '💔 取消赞' : '❤️ 点赞'}</button>
+      <button class="modal-action-btn secondary" id="modal-gift-btn">🎁 送礼物</button>
+      <button class="modal-action-btn secondary" id="modal-msg-btn">💬 留言</button>
+    </div>
+    <div id="modal-gift-grid" class="modal-gift-grid hidden"></div>
+    <div id="modal-msg-wrap" class="message-input-wrap hidden" style="margin-top:12px;">
+      <input type="text" id="modal-msg-input" placeholder="说点什么..." maxlength="30">
+      <button id="modal-msg-send" class="btn-primary" style="padding:6px 12px;font-size:12px;">发送</button>
+    </div>
+  `;
+  modal.classList.remove('hidden');
+
+  // Like button
+  $('#modal-like').addEventListener('click', async () => {
+    const result = await Online.likePlayer(uid);
+    if (result === true) showFloatReward('点赞成功！');
+    else if (result === false) showFloatReward('已取消点赞');
+    modal.classList.add('hidden');
+  });
+
+  // Gift button
+  $('#modal-gift-btn').addEventListener('click', () => {
+    const grid = $('#modal-gift-grid');
+    const msgWrap = $('#modal-msg-wrap');
+    msgWrap.classList.add('hidden');
+    grid.classList.toggle('hidden');
+    if (!grid.classList.contains('hidden')) {
+      const gifts = [
+        { emoji: '🌹', name: '玫瑰花' }, { emoji: '🎂', name: '蛋糕' }, { emoji: '🍫', name: '巧克力' },
+        { emoji: '🧸', name: '小熊' }, { emoji: '💎', name: '宝石' }, { emoji: '⭐', name: '星星' }
+      ];
+      grid.innerHTML = gifts.map(g => `<div class="modal-gift-item" data-gift-emoji="${g.emoji}" data-gift-name="${g.name}" title="${g.name}">${g.emoji}</div>`).join('');
+      grid.querySelectorAll('.modal-gift-item').forEach(item => {
+        item.addEventListener('click', async () => {
+          await Online.sendGift(uid, item.dataset.giftEmoji, item.dataset.giftName);
+          showFloatReward(`送了 ${item.dataset.giftEmoji} ${item.dataset.giftName}！`);
+          modal.classList.add('hidden');
+        });
+      });
+    }
+  });
+
+  // Message button
+  $('#modal-msg-btn').addEventListener('click', () => {
+    const msgWrap = $('#modal-msg-wrap');
+    const grid = $('#modal-gift-grid');
+    grid.classList.add('hidden');
+    msgWrap.classList.toggle('hidden');
+    if (!msgWrap.classList.contains('hidden')) {
+      $('#modal-msg-input').focus();
+      $('#modal-msg-send').addEventListener('click', async () => {
+        const text = $('#modal-msg-input').value.trim();
+        if (!text) return;
+        await Online.leaveMessage(uid, text);
+        showFloatReward('留言已发送！');
+        modal.classList.add('hidden');
+      });
+      $('#modal-msg-input').addEventListener('keydown', e => {
+        if (e.key === 'Enter') $('#modal-msg-send').click();
+      });
+    }
+  });
+
+  // Close modal
+  $('#modal-close').addEventListener('click', () => modal.classList.add('hidden'));
+  modal.querySelector('.modal-overlay').addEventListener('click', () => modal.classList.add('hidden'));
+}
+
+function renderGifts() {
+  const list = $('#gifts-list');
+  if (!list) return;
+  // Read from localStorage since gifts are ephemeral
+  list.innerHTML = '<div class="no-data">收到的礼物会在这里显示</div>';
+}
+
+function renderMessages() {
+  const list = $('#message-list');
+  if (!list) return;
+  list.innerHTML = '<div class="no-data">留言会在这里显示</div>';
+}
+
+function renderOnline() {
+  renderCoins();
+  updateOnlineStatus(Online.isOnline());
+  if (Online.isOnline()) Online.syncPlayerData(state);
+}
+
+// Sync data periodically when online
+function startOnlineSync() {
+  setInterval(() => {
+    if (Online.isOnline() && state?.petType) {
+      Online.syncPlayerData(state);
+    }
+  }, 60000);
+}
+
 // ===== Event Binding =====
 function bindEvents() {
   // Login
@@ -1024,6 +1219,9 @@ function bindEvents() {
       if (furnitureBoostTimer) clearInterval(furnitureBoostTimer);
       if (growthTimer) clearInterval(growthTimer);
       if (miniGameRAF) { cancelAnimationFrame(miniGameRAF); miniGameRAF = null; }
+      if (Online.isOnline()) Online.setOffline();
+      onlineUnsubscribes.forEach(fn => fn());
+      onlineUnsubscribes = [];
       state = null;
       currentPlayer = null;
       showScreen('login');
@@ -1057,9 +1255,24 @@ function bindEvents() {
   $('#game-restart').addEventListener('click', () => startMiniGame(currentMiniGame));
   $('#game-back-menu').addEventListener('click', quitMiniGame);
 
+  // Online message send
+  const msgSend = $('#message-send');
+  const msgInput = $('#message-input');
+  if (msgSend && msgInput) {
+    msgSend.addEventListener('click', async () => {
+      const text = msgInput.value.trim();
+      if (!text || !Online.isOnline()) return;
+      // Broadcast to all online players - simplified: just send to leaderboard top player
+      showFloatReward('留言功能需要选择具体玩家');
+      msgInput.value = '';
+    });
+    msgInput.addEventListener('keydown', e => { if (e.key === 'Enter') msgSend.click(); });
+  }
+
   initDragDrop();
   initPetting();
   setInterval(() => { if (state?.petType) save(); }, 30000);
+  startOnlineSync();
 }
 
 // ===== Start =====

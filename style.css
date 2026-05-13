@@ -264,6 +264,76 @@ body {
 .game-over-card h3 { font-size: 20px; color: #7b1fa2; margin-bottom: 8px; }
 .game-over-card p { font-size: 14px; margin-bottom: 6px; }
 
+/* ===== Online ===== */
+.online-status { font-size: 12px; padding: 3px 10px; border-radius: 10px; font-weight: 600; }
+.online-status.online { background: #c8e6c9; color: #2e7d32; }
+.online-status.offline { background: #f5f5f5; color: #999; }
+.leaderboard-section { background: white; border-radius: 16px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+.leaderboard-section h3 { font-size: 16px; color: #7b1fa2; margin-bottom: 12px; }
+.leaderboard-list { display: flex; flex-direction: column; gap: 8px; }
+.lb-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: #fafafa; border-radius: 12px; cursor: pointer; transition: all 0.2s; }
+.lb-item:hover { background: #f3e5f5; }
+.lb-rank { font-size: 18px; font-weight: 700; color: #ab47bc; min-width: 28px; text-align: center; }
+.lb-rank.gold { color: #ffd600; }
+.lb-rank.silver { color: #90a4ae; }
+.lb-rank.bronze { color: #ff8f00; }
+.lb-emoji { font-size: 28px; }
+.lb-info { flex: 1; }
+.lb-name { font-size: 14px; font-weight: 700; display: block; }
+.lb-detail { font-size: 11px; color: #999; display: block; margin-top: 2px; }
+.lb-intimacy { font-size: 14px; font-weight: 700; color: #ec407a; }
+.online-players-section { background: white; border-radius: 16px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+.online-players-section h3 { font-size: 16px; color: #7b1fa2; margin-bottom: 12px; }
+.online-count { font-size: 12px; color: #4caf50; font-weight: 600; }
+.online-players-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.online-player-card { background: #fafafa; border-radius: 14px; padding: 12px; text-align: center; cursor: pointer; transition: all 0.2s; border: 2px solid transparent; }
+.online-player-card:hover { border-color: #f48fb1; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(244,143,177,0.2); }
+.online-pet-emoji { font-size: 36px; display: block; margin-bottom: 4px; }
+.online-pet-name { font-size: 13px; font-weight: 700; display: block; }
+.online-pet-stage { font-size: 10px; color: #ab47bc; display: block; margin-top: 2px; }
+.message-section { background: white; border-radius: 16px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+.message-section h3 { font-size: 16px; color: #7b1fa2; margin-bottom: 12px; }
+.message-list { max-height: 200px; overflow-y: auto; margin-bottom: 10px; }
+.message-item { padding: 8px 0; border-bottom: 1px solid #f5f5f5; font-size: 13px; }
+.message-item:last-child { border-bottom: none; }
+.message-from { font-weight: 700; color: #e91e63; margin-right: 6px; }
+.message-time { color: #ccc; font-size: 11px; margin-left: 6px; }
+.message-input-wrap { display: flex; gap: 8px; }
+.message-input-wrap input { flex: 1; padding: 8px 14px; border: 2px solid #e0e0e0; border-radius: 12px; font-size: 13px; outline: none; transition: border-color 0.3s; }
+.message-input-wrap input:focus { border-color: #ce93d8; }
+.gifts-section { background: white; border-radius: 16px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+.gifts-section h3 { font-size: 16px; color: #7b1fa2; margin-bottom: 12px; }
+.gifts-list { display: flex; flex-direction: column; gap: 8px; }
+.gift-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: #fff9c4; border-radius: 12px; animation: popIn 0.3s ease-out; }
+.gift-emoji { font-size: 28px; }
+.gift-info { flex: 1; }
+.gift-from { font-size: 12px; font-weight: 600; display: block; }
+.gift-name { font-size: 11px; color: #666; display: block; }
+.no-data { color: #ccc; font-size: 13px; text-align: center; padding: 16px; }
+
+/* ===== Modal ===== */
+.modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 300; display: flex; align-items: center; justify-content: center; }
+.modal.hidden { display: none; }
+.modal-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); }
+.modal-card { position: relative; background: white; border-radius: 20px; padding: 24px; max-width: 340px; width: 90%; max-height: 80vh; overflow-y: auto; animation: bubblePop 0.4s cubic-bezier(.34,1.56,.64,1); }
+.modal-close { position: absolute; top: 12px; right: 16px; background: none; border: none; font-size: 20px; cursor: pointer; color: #999; }
+.modal-close:hover { color: #333; }
+.modal-pet-header { text-align: center; margin-bottom: 16px; }
+.modal-pet-emoji { font-size: 60px; display: block; margin-bottom: 8px; }
+.modal-pet-name { font-size: 20px; font-weight: 700; display: block; }
+.modal-pet-stage { font-size: 12px; color: #ab47bc; display: block; margin-top: 4px; }
+.modal-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+.modal-stat { background: #fafafa; border-radius: 10px; padding: 8px 12px; text-align: center; }
+.modal-stat-value { font-size: 16px; font-weight: 700; color: #e91e63; display: block; }
+.modal-stat-label { font-size: 11px; color: #999; display: block; }
+.modal-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.modal-action-btn { background: linear-gradient(135deg, #f48fb1, #ec407a); color: white; border: none; border-radius: 12px; padding: 8px 16px; font-size: 13px; cursor: pointer; transition: transform 0.2s; }
+.modal-action-btn:hover { transform: scale(1.05); }
+.modal-action-btn.secondary { background: linear-gradient(135deg, #90caf9, #42a5f5); }
+.modal-gift-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.modal-gift-item { font-size: 28px; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; background: #fafafa; }
+.modal-gift-item:hover { background: #fce4ec; transform: scale(1.15); }
+
 /* ===== Animations ===== */
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }

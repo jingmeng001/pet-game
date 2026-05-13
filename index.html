@@ -279,6 +279,47 @@
           </div>
         </div>
 
+        <!-- 在线广场 Tab -->
+        <div id="tab-online" class="tab-panel">
+          <div class="panel-header">
+            <h2>🌐 在线广场</h2>
+            <span id="online-status" class="online-status offline">离线</span>
+          </div>
+          <!-- 排行榜 -->
+          <div class="leaderboard-section">
+            <h3>🏆 亲密度排行榜</h3>
+            <div id="leaderboard-list" class="leaderboard-list"></div>
+          </div>
+          <!-- 在线玩家 -->
+          <div class="online-players-section">
+            <h3>🟢 在线玩家 <span id="online-count" class="online-count"></span></h3>
+            <div id="online-players-list" class="online-players-list"></div>
+          </div>
+          <!-- 留言板 -->
+          <div class="message-section">
+            <h3>💬 留言板</h3>
+            <div id="message-list" class="message-list"></div>
+            <div class="message-input-wrap">
+              <input type="text" id="message-input" placeholder="给其他玩家留言..." maxlength="50">
+              <button id="message-send" class="btn-primary" style="padding:8px 16px;font-size:13px;">发送</button>
+            </div>
+          </div>
+          <!-- 收到的礼物 -->
+          <div class="gifts-section">
+            <h3>🎁 收到的礼物</h3>
+            <div id="gifts-list" class="gifts-list"></div>
+          </div>
+        </div>
+
+        <!-- 玩家详情弹窗 -->
+        <div id="player-detail-modal" class="modal hidden">
+          <div class="modal-overlay"></div>
+          <div class="modal-card">
+            <button class="modal-close" id="modal-close">✕</button>
+            <div id="player-detail-content"></div>
+          </div>
+        </div>
+
         <!-- 底部导航 -->
         <div class="bottom-nav">
           <div class="nav-item active" data-tab="home"><span class="nav-icon">🏠</span><span class="nav-label">家园</span></div>
@@ -286,11 +327,19 @@
           <div class="nav-item" data-tab="outdoor"><span class="nav-icon">🌿</span><span class="nav-label">探险</span></div>
           <div class="nav-item" data-tab="social"><span class="nav-icon">🐾</span><span class="nav-label">社交</span></div>
           <div class="nav-item" data-tab="games"><span class="nav-icon">🎮</span><span class="nav-label">游戏</span></div>
+          <div class="nav-item" data-tab="online"><span class="nav-icon">🌐</span><span class="nav-label">广场</span></div>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <script src="firebase-config.js"></script>
+  <script src="online.js"></script>
   <script src="game.js"></script>
 </body>
 </html>
