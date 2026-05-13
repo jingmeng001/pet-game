@@ -1,10 +1,10 @@
 // ===== Pet Definitions =====
 const PETS = {
-  cat:     { emoji: '🐱', name: '小猫咪', phrases: ['喵~ 好开心！', '喵呜~ 想吃小鱼干', '蹭蹭你~', '呼噜呼噜...', '喵~ 陪你玩！'] },
-  dog:     { emoji: '🐶', name: '小狗狗', phrases: ['汪！最喜欢你了！', '汪汪~ 出去玩！', '摇尾巴摇尾巴~', '汪~ 好饿呀', '汪！我学会了新技能！'] },
-  rabbit:  { emoji: '🐰', name: '小兔子', phrases: ['蹦蹦跳跳~', '想吃胡萝卜！', '蹭蹭~ 好舒服', '耳朵竖起来啦~', '软软的~'] },
-  hamster: { emoji: '🐹', name: '小仓鼠', phrases: ['囤囤囤~', '小爪子捧着瓜子~', '圆滚滚~', '吱吱~', '藏了好多好吃的！'] },
-  bird:    { emoji: '🐦', name: '小鹦鹉', phrases: ['你好你好~', '叽叽喳喳！', '拍拍翅膀~', '飞到你肩膀上！', '学你说话~'] }
+  cat:     { emoji: '🐱', name: '小猫咪', phrases: ['喵~ 好开心！', '喵呜~ 想吃小鱼干', '蹭蹭你~', '呼噜呼噜...', '喵~ 陪你玩！'], clickReactions: ['喵！吓我一跳~', '喵呜~ 再摸摸', '咕噜咕噜~', '用爪子拍拍你~', '喵~ 别碰我尾巴！'], hungryThoughts: ['肚子咕咕叫了...', '好想吃小鱼干...', '闻到好吃的味道了！'], moodThoughts: ['想玩毛线球~', '窗外有只鸟！', '好无聊啊...', '想晒太阳~'], loveClicks: ['❤️ 喜欢你！', '蹭蹭~', '呼噜呼噜~', '主人最好了~'] },
+  dog:     { emoji: '🐶', name: '小狗狗', phrases: ['汪！最喜欢你了！', '汪汪~ 出去玩！', '摇尾巴摇尾巴~', '汪~ 好饿呀', '汪！我学会了新技能！'], clickReactions: ['汪！', '摇摇尾巴~', '扑到你身上！', '汪汪！再来一次！', '开心转圈圈！'], hungryThoughts: ['想啃骨头...', '肚子好饿...', '闻到肉味了！'], moodThoughts: ['想出去遛弯~', '有蝴蝶！追！', '球球在哪？', '想和你玩飞盘~'], loveClicks: ['❤️ 汪！爱你！', '摇尾巴~', '舔舔你~', '最好的主人！'] },
+  rabbit:  { emoji: '🐰', name: '小兔子', phrases: ['蹦蹦跳跳~', '想吃胡萝卜！', '蹭蹭~ 好舒服', '耳朵竖起来啦~', '软软的~'], clickReactions: ['蹦！', '耳朵抖动~', '用鼻子蹭你~', '缩成一团~', '竖起耳朵听！'], hungryThoughts: ['想吃胡萝卜...', '青菜也好...', '饿得耳朵都耷拉了...'], moodThoughts: ['想挖洞洞~', '草地上好舒服~', '有蝴蝶飞过！', '想打个盹~'], loveClicks: ['❤️ 蹭蹭~', '竖耳朵~', '蹦蹦跳~', '好喜欢你~'] },
+  hamster: { emoji: '🐹', name: '小仓鼠', phrases: ['囤囤囤~', '小爪子捧着瓜子~', '圆滚滚~', '吱吱~', '藏了好多好吃的！'], clickReactions: ['吱！', '缩成小球~', '小爪子抱住你~', '眨眨小眼睛~', '囤！'], hungryThoughts: ['瓜子...想吃瓜子...', '腮帮子空了...', '好饿好饿...'], moodThoughts: ['想跑转轮~', '藏东西！', '沙沙沙~挖洞', '好困想睡觉~'], loveClicks: ['❤️ 吱吱~', '蹭蹭手心~', '小爪子握你~', '最爱你了~'] },
+  bird:    { emoji: '🐦', name: '小鹦鹉', phrases: ['你好你好~', '叽叽喳喳！', '拍拍翅膀~', '飞到你肩膀上！', '学你说话~'], clickReactions: ['叽！', '拍拍翅膀~', '歪头看你~', '啾啾啾~', '飞到你头上！'], hungryThoughts: ['想吃小米粒...', '好饿呀~', '种子...给我种子...'], moodThoughts: ['想唱歌~', '镜子在哪？', '飞飞飞~', '想洗澡~'], loveClicks: ['❤️ 你好~', '蹭蹭脸~', '梳梳羽毛~', '最喜欢你~'] }
 };
 
 const STAGES = [
@@ -29,6 +29,8 @@ const DAILY_TASKS = [
 
 // ===== Game State =====
 let state = null;
+let thoughtTimer = null;
+let pettingState = { active: false, strokes: 0, lastX: 0, lastY: 0 };
 
 function getDefaultState() {
   return {
@@ -87,6 +89,7 @@ function init() {
     showScreen('game');
     renderGame();
     startGrowthLoop();
+    startThoughtBubble();
   } else {
     showScreen('adopt');
   }
@@ -117,6 +120,7 @@ function confirmName() {
   showScreen('game');
   renderGame();
   startGrowthLoop();
+  startThoughtBubble();
   speak(`${name}来到新家啦！要好好照顾我哦~`);
 }
 
@@ -140,24 +144,16 @@ let growthTimer = null;
 function startGrowthLoop() {
   if (growthTimer) clearInterval(growthTimer);
   growthTimer = setInterval(() => {
-    // Online growth
     state.growth += 1;
-
-    // Hunger decreases slowly
     state.hunger = Math.max(0, state.hunger - 0.5);
-
-    // Mood affected by hunger
     if (state.hunger < 20) {
       state.mood = Math.max(0, state.mood - 0.3);
     }
-
-    // Age increases
     state.age += 0.01;
-
     renderStats();
     checkStageUp();
     save();
-  }, 10000); // every 10 seconds
+  }, 10000);
 }
 
 // ===== Stage Check =====
@@ -200,7 +196,6 @@ function renderStats() {
   $('#game-pet-stage').textContent = stage.name;
   $('#stat-age').textContent = formatAge(state.age);
 
-  // Growth bar
   const nextStage = STAGES.find(s => s.min > state.growth) || STAGES[STAGES.length - 1];
   const prevStageMin = STAGES.filter(s => s.min <= state.growth).pop()?.min || 0;
   const growthPercent = nextStage.min === prevStageMin
@@ -209,16 +204,13 @@ function renderStats() {
   $('#growth-bar').style.width = growthPercent + '%';
   $('#stat-growth').textContent = `${state.growth}/${nextStage.min}`;
 
-  // Intimacy bar
   const intimacyPercent = Math.min(100, state.intimacy / 10);
   $('#intimacy-bar').style.width = intimacyPercent + '%';
   $('#stat-intimacy').textContent = Math.floor(state.intimacy);
 
-  // Hunger bar
   $('#hunger-bar').style.width = state.hunger + '%';
   $('#stat-hunger').textContent = Math.floor(state.hunger) + '%';
 
-  // Mood bar
   $('#mood-bar').style.width = state.mood + '%';
   $('#stat-mood').textContent = Math.floor(state.mood) + '%';
 }
@@ -290,19 +282,12 @@ function doAction(action) {
   const cfg = actionMap[action];
   if (!cfg) return;
 
-  // Update stat
   state[cfg.stat] = Math.min(cfg.max, state[cfg.stat] + cfg.value);
-
-  // Small intimacy boost for any interaction
   state.intimacy += 1;
 
-  // Animation
   triggerAnimation(cfg.animation);
-
-  // Speech
   speak(cfg.msg || getRandomPhrase());
 
-  // Check if this completes a daily task
   const task = DAILY_TASKS.find(t => t.action === action);
   if (task) {
     completeTask(task.id);
@@ -312,13 +297,365 @@ function doAction(action) {
   renderStats();
 }
 
+// ===== 1. Enhanced Click Interaction =====
+function handleClick(e) {
+  const pet = PETS[state.petType];
+  const reactions = pet.clickReactions;
+  const reaction = reactions[Math.floor(Math.random() * reactions.length)];
+
+  // Random reaction type
+  const reactionType = Math.random();
+  if (reactionType < 0.4) {
+    // Jump reaction
+    triggerAnimation('click-react');
+    speak(reaction);
+  } else if (reactionType < 0.7) {
+    // Tail wag / happy
+    triggerAnimation('happy');
+    speak(pet.loveClicks[Math.floor(Math.random() * pet.loveClicks.length)]);
+  } else {
+    // Just speech
+    speak(reaction);
+  }
+
+  // Spawn hearts
+  spawnHearts(e.clientX || e.touches?.[0]?.clientX, e.clientY || e.touches?.[0]?.clientY);
+
+  // Small stat boost
+  state.intimacy += 0.5;
+  state.mood = Math.min(100, state.mood + 0.3);
+  renderStats();
+  save();
+}
+
+// ===== Hearts Effect =====
+function spawnHearts(x, y) {
+  const container = $('#hearts-container');
+  const count = 3 + Math.floor(Math.random() * 3);
+  const hearts = ['❤️', '💕', '💗', '💖', '✨'];
+
+  for (let i = 0; i < count; i++) {
+    const heart = document.createElement('div');
+    heart.className = 'heart-particle';
+    heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+
+    // Position relative to pet display
+    const rect = $('#pet-display').getBoundingClientRect();
+    const relX = (x || rect.left + rect.width / 2) - rect.left;
+    const relY = (y || rect.top + rect.height / 2) - rect.top;
+
+    heart.style.left = relX + 'px';
+    heart.style.top = relY + 'px';
+    heart.style.setProperty('--dx', (Math.random() * 60 - 30) + 'px');
+    heart.style.fontSize = (16 + Math.random() * 12) + 'px';
+
+    container.appendChild(heart);
+    setTimeout(() => heart.remove(), 1500);
+  }
+}
+
+// ===== 2. Drag & Drop System =====
+function initDragDrop() {
+  const dragItems = $$('.drag-item');
+  const petDisplay = $('#pet-display');
+  const petMain = $('#pet-main');
+
+  dragItems.forEach(item => {
+    // Mouse drag
+    item.addEventListener('dragstart', (e) => {
+      e.dataTransfer.setData('text/plain', item.dataset.dragAction);
+      item.classList.add('dragging');
+      $('#drag-hint-text').textContent = `把${item.dataset.dragLabel}拖到宠物身上~`;
+      $('#drag-hint').classList.remove('hidden');
+    });
+
+    item.addEventListener('dragend', () => {
+      item.classList.remove('dragging');
+      $('#drag-hint').classList.add('hidden');
+      petDisplay.classList.remove('drag-over');
+    });
+
+    // Touch drag for mobile
+    let touchClone = null;
+    let touchAction = null;
+
+    item.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      touchAction = item.dataset.dragAction;
+      const touch = e.touches[0];
+
+      touchClone = document.createElement('div');
+      touchClone.textContent = item.dataset.dragEmoji;
+      touchClone.style.cssText = `
+        position: fixed; font-size: 40px; pointer-events: none; z-index: 1000;
+        left: ${touch.clientX - 20}px; top: ${touch.clientY - 20}px;
+        transition: none;
+      `;
+      document.body.appendChild(touchClone);
+      item.classList.add('dragging');
+      $('#drag-hint-text').textContent = `把${item.dataset.dragLabel}拖到宠物身上~`;
+      $('#drag-hint').classList.remove('hidden');
+    }, { passive: false });
+
+    item.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      if (!touchClone) return;
+      const touch = e.touches[0];
+      touchClone.style.left = (touch.clientX - 20) + 'px';
+      touchClone.style.top = (touch.clientY - 20) + 'px';
+
+      // Check if over pet
+      const petRect = petMain.getBoundingClientRect();
+      const overPet = touch.clientX >= petRect.left && touch.clientX <= petRect.right &&
+                      touch.clientY >= petRect.top && touch.clientY <= petRect.bottom;
+      petDisplay.classList.toggle('drag-over', overPet);
+    }, { passive: false });
+
+    item.addEventListener('touchend', (e) => {
+      if (touchClone) {
+        touchClone.remove();
+        touchClone = null;
+      }
+      item.classList.remove('dragging');
+      $('#drag-hint').classList.add('hidden');
+      petDisplay.classList.remove('drag-over');
+
+      // Check if dropped on pet
+      if (touchAction && e.changedTouches[0]) {
+        const touch = e.changedTouches[0];
+        const petRect = petMain.getBoundingClientRect();
+        const overPet = touch.clientX >= petRect.left && touch.clientX <= petRect.right &&
+                        touch.clientY >= petRect.top && touch.clientY <= petRect.bottom;
+        if (overPet) {
+          doAction(touchAction);
+          spawnHearts(touch.clientX, touch.clientY);
+        }
+      }
+      touchAction = null;
+    });
+  });
+
+  // Drop zone
+  petDisplay.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    petDisplay.classList.add('drag-over');
+  });
+
+  petDisplay.addEventListener('dragleave', () => {
+    petDisplay.classList.remove('drag-over');
+  });
+
+  petDisplay.addEventListener('drop', (e) => {
+    e.preventDefault();
+    petDisplay.classList.remove('drag-over');
+    const action = e.dataTransfer.getData('text/plain');
+    if (action) {
+      doAction(action);
+      spawnHearts(e.clientX, e.clientY);
+    }
+    $('#drag-hint').classList.add('hidden');
+  });
+}
+
+// ===== 3. Thought Bubble System =====
+const THOUGHT_TYPES = {
+  hungry: (pet) => ({
+    texts: pet.hungryThoughts,
+    response: () => {
+      state.hunger = Math.min(100, state.hunger + 15);
+      speak('谢谢！好好吃~');
+      triggerAnimation('eating');
+    }
+  }),
+  mood: (pet) => ({
+    texts: pet.moodThoughts,
+    response: () => {
+      state.mood = Math.min(100, state.mood + 10);
+      speak('好开心！' + getRandomPhrase());
+      triggerAnimation('happy');
+    }
+  }),
+  love: (pet) => ({
+    texts: [`${state.petName}想你了~`, '可以陪我玩吗？', '摸摸我~', '最喜欢你了！'],
+    response: () => {
+      state.intimacy += 3;
+      spawnHearts(null, null);
+      speak(pet.loveClicks[Math.floor(Math.random() * pet.loveClicks.length)]);
+      triggerAnimation('happy');
+    }
+  })
+};
+
+function startThoughtBubble() {
+  if (thoughtTimer) clearInterval(thoughtTimer);
+
+  const showThought = () => {
+    if (!state?.petType) return;
+    const pet = PETS[state.petType];
+
+    // Choose thought type based on state
+    let type;
+    if (state.hunger < 30) type = 'hungry';
+    else if (state.mood < 40) type = 'mood';
+    else type = ['hungry', 'mood', 'love'][Math.floor(Math.random() * 3)];
+
+    const thought = THOUGHT_TYPES[type](pet);
+    const text = thought.texts[Math.floor(Math.random() * thought.texts.length)];
+
+    const bubble = $('#thought-bubble');
+    const textEl = $('#thought-text');
+    const btnEl = $('#thought-respond');
+
+    textEl.textContent = text;
+    bubble.classList.remove('hidden');
+    bubble.style.animation = 'none';
+    void bubble.offsetWidth;
+    bubble.style.animation = 'bubblePop 0.4s cubic-bezier(.34,1.56,.64,1)';
+
+    // Auto hide after 8s
+    const hideTimeout = setTimeout(() => {
+      bubble.classList.add('hidden');
+    }, 8000);
+
+    // Respond button
+    btnEl.onclick = () => {
+      clearTimeout(hideTimeout);
+      bubble.classList.add('hidden');
+      thought.response();
+      state.intimacy += 2;
+      renderStats();
+      save();
+    };
+  };
+
+  // Show first thought after 15s, then every 25-40s
+  setTimeout(() => {
+    showThought();
+    thoughtTimer = setInterval(showThought, 25000 + Math.random() * 15000);
+  }, 15000);
+}
+
+// ===== 4. Petting System =====
+function initPetting() {
+  const petDisplay = $('#pet-display');
+  const petMain = $('#pet-main');
+  let isPetting = false;
+  let strokeCount = 0;
+  let lastPos = { x: 0, y: 0 };
+  let pettingTimeout = null;
+
+  function startPet(x, y) {
+    // Only start if touching on the pet emoji area
+    const rect = petMain.getBoundingClientRect();
+    if (x < rect.left - 20 || x > rect.right + 20 || y < rect.top - 20 || y > rect.bottom + 20) return;
+
+    isPetting = true;
+    strokeCount = 0;
+    lastPos = { x, y };
+    petDisplay.classList.add('petting');
+    triggerAnimation('petting');
+  }
+
+  function movePet(x, y) {
+    if (!isPetting) return;
+
+    const dx = x - lastPos.x;
+    const dy = y - lastPos.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (dist > 15) {
+      strokeCount++;
+      lastPos = { x, y };
+
+      // Spawn small hearts during petting
+      if (strokeCount % 3 === 0) {
+        spawnHearts(x, y);
+        state.intimacy += 0.3;
+        state.mood = Math.min(100, state.mood + 0.2);
+        renderStats();
+      }
+
+      // Pet reacts to petting
+      if (strokeCount === 5) {
+        const pet = PETS[state.petType];
+        speak(pet.phrases[Math.floor(Math.random() * pet.phrases.length)]);
+      }
+      if (strokeCount === 12) {
+        speak('呼噜呼噜~ 好舒服...');
+      }
+      if (strokeCount === 20) {
+        speak('太舒服了~ 要融化了~');
+        triggerAnimation('happy');
+        showFloatReward('+5 亲密度');
+        state.intimacy += 5;
+        renderStats();
+        save();
+        stopPet();
+      }
+    }
+  }
+
+  function stopPet() {
+    if (!isPetting) return;
+    isPetting = false;
+    petDisplay.classList.remove('petting');
+
+    if (strokeCount >= 3) {
+      speak('好舒服~ 还要摸~');
+      save();
+    }
+    strokeCount = 0;
+  }
+
+  // Mouse events
+  petDisplay.addEventListener('mousedown', (e) => {
+    if (e.target.closest('.thought-bubble')) return;
+    startPet(e.clientX, e.clientY);
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    movePet(e.clientX, e.clientY);
+  });
+
+  document.addEventListener('mouseup', stopPet);
+
+  // Touch events
+  petDisplay.addEventListener('touchstart', (e) => {
+    if (e.target.closest('.thought-bubble')) return;
+    // Don't prevent default here to allow clicking on thought bubble
+    if (isPetTouch(e)) {
+      e.preventDefault();
+      startPet(e.touches[0].clientX, e.touches[0].clientY);
+    }
+  }, { passive: false });
+
+  document.addEventListener('touchmove', (e) => {
+    if (isPetting) {
+      e.preventDefault();
+      movePet(e.touches[0].clientX, e.touches[0].clientY);
+    }
+  }, { passive: false });
+
+  document.addEventListener('touchend', stopPet);
+  document.addEventListener('touchcancel', stopPet);
+}
+
+function isPetTouch(e) {
+  const petMain = $('#pet-main');
+  const rect = petMain.getBoundingClientRect();
+  const touch = e.touches[0];
+  return touch.clientX >= rect.left - 30 && touch.clientX <= rect.right + 30 &&
+         touch.clientY >= rect.top - 30 && touch.clientY <= rect.bottom + 30;
+}
+
 // ===== Animations & Effects =====
 function triggerAnimation(type) {
   const el = $('#pet-main');
   el.className = 'pet-main-emoji';
-  void el.offsetWidth; // force reflow
+  void el.offsetWidth;
   el.classList.add(type);
-  setTimeout(() => el.className = 'pet-main-emoji', type === 'sleeping' ? 4000 : 2000);
+  const duration = type === 'sleeping' ? 4000 : type === 'petting' ? 3000 : type === 'click-react' ? 400 : 2000;
+  setTimeout(() => el.className = 'pet-main-emoji', duration);
 }
 
 function speak(text) {
@@ -352,7 +689,6 @@ function renderInventory() {
     grid.innerHTML = '<span style="color:#ccc;font-size:13px;">暂无道具，完成任务获取奖励</span>';
     return;
   }
-  // Count items
   const counts = {};
   state.inventory.forEach(item => {
     counts[item] = (counts[item] || 0) + 1;
@@ -387,13 +723,12 @@ function bindEvents() {
     btn.addEventListener('click', () => doAction(btn.dataset.action));
   });
 
-  // Pet tap
-  $('#pet-main').addEventListener('click', () => {
-    triggerAnimation('happy');
-    speak(getRandomPhrase());
-    state.intimacy += 0.5;
-    renderStats();
-  });
+  // Enhanced click on pet
+  $('#pet-main').addEventListener('click', handleClick);
+
+  // Initialize new systems
+  initDragDrop();
+  initPetting();
 
   // Auto-save every 30s
   setInterval(() => { if (state?.petType) save(); }, 30000);

@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>宠物养成小游戏</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -70,12 +70,28 @@
         </div>
 
         <!-- 宠物展示区 -->
-        <div class="pet-display">
+        <div class="pet-display" id="pet-display">
           <div class="pet-scene">
             <div id="pet-main" class="pet-main-emoji"></div>
             <div class="ground"></div>
           </div>
+          <!-- 思考气泡 -->
+          <div id="thought-bubble" class="thought-bubble hidden">
+            <div class="thought-content">
+              <span id="thought-text"></span>
+              <button id="thought-respond" class="thought-btn">回应</button>
+            </div>
+            <div class="thought-dots"><span></span><span></span><span></span></div>
+          </div>
+          <!-- 宠物说的话 -->
           <div id="pet-speech" class="pet-speech"></div>
+          <!-- 心心粒子容器 -->
+          <div id="hearts-container" class="hearts-container"></div>
+        </div>
+
+        <!-- 拖拽提示区 -->
+        <div id="drag-hint" class="drag-hint hidden">
+          <span id="drag-hint-text"></span>
         </div>
 
         <!-- 状态面板 -->
@@ -111,6 +127,18 @@
               <div id="mood-bar" class="stat-bar mood"></div>
               <span id="stat-mood" class="stat-bar-text"></span>
             </div>
+          </div>
+        </div>
+
+        <!-- 可拖拽的道具栏 -->
+        <div class="drag-items-section">
+          <h3>拖拽道具到宠物身上</h3>
+          <div class="drag-items-row">
+            <div class="drag-item" draggable="true" data-drag-action="feed" data-drag-emoji="🍖" data-drag-label="食物">🍖</div>
+            <div class="drag-item" draggable="true" data-drag-action="play" data-drag-emoji="🎾" data-drag-label="玩具">🎾</div>
+            <div class="drag-item" draggable="true" data-drag-action="bath" data-drag-emoji="🧴" data-drag-label="浴液">🧴</div>
+            <div class="drag-item" draggable="true" data-drag-action="brush" data-drag-emoji="🪥" data-drag-label="梳子">🪥</div>
+            <div class="drag-item" draggable="true" data-drag-action="toy" data-drag-emoji="🧸" data-drag-label="新玩具">🧸</div>
           </div>
         </div>
 
