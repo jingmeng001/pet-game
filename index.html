@@ -14,31 +14,11 @@
         <h1>选择你的宠物伙伴</h1>
         <p class="subtitle">每只宠物都渴望一个温暖的家</p>
         <div class="pet-select-grid">
-          <div class="pet-card" data-pet="cat">
-            <div class="pet-emoji">🐱</div>
-            <span class="pet-name">小猫咪</span>
-            <span class="pet-desc">温柔可爱，喜欢撒娇</span>
-          </div>
-          <div class="pet-card" data-pet="dog">
-            <div class="pet-emoji">🐶</div>
-            <span class="pet-name">小狗狗</span>
-            <span class="pet-desc">忠诚活泼，喜欢奔跑</span>
-          </div>
-          <div class="pet-card" data-pet="rabbit">
-            <div class="pet-emoji">🐰</div>
-            <span class="pet-name">小兔子</span>
-            <span class="pet-desc">乖巧安静，喜欢胡萝卜</span>
-          </div>
-          <div class="pet-card" data-pet="hamster">
-            <div class="pet-emoji">🐹</div>
-            <span class="pet-name">小仓鼠</span>
-            <span class="pet-desc">圆滚滚，爱囤粮食</span>
-          </div>
-          <div class="pet-card" data-pet="bird">
-            <div class="pet-emoji">🐦</div>
-            <span class="pet-name">小鹦鹉</span>
-            <span class="pet-desc">聪明伶俐，会学说话</span>
-          </div>
+          <div class="pet-card" data-pet="cat"><div class="pet-emoji">🐱</div><span class="pet-name">小猫咪</span><span class="pet-desc">温柔可爱，喜欢撒娇</span></div>
+          <div class="pet-card" data-pet="dog"><div class="pet-emoji">🐶</div><span class="pet-name">小狗狗</span><span class="pet-desc">忠诚活泼，喜欢奔跑</span></div>
+          <div class="pet-card" data-pet="rabbit"><div class="pet-emoji">🐰</div><span class="pet-name">小兔子</span><span class="pet-desc">乖巧安静，喜欢胡萝卜</span></div>
+          <div class="pet-card" data-pet="hamster"><div class="pet-emoji">🐹</div><span class="pet-name">小仓鼠</span><span class="pet-desc">圆滚滚，爱囤粮食</span></div>
+          <div class="pet-card" data-pet="bird"><div class="pet-emoji">🐦</div><span class="pet-name">小鹦鹉</span><span class="pet-desc">聪明伶俐，会学说话</span></div>
         </div>
       </div>
     </div>
@@ -65,110 +45,231 @@
             <span id="game-pet-stage" class="header-stage"></span>
           </div>
           <div class="top-actions">
+            <span id="coin-display" class="coin-display">🪙 0</span>
             <button id="save-btn" class="btn-icon" title="保存进度">💾</button>
           </div>
         </div>
 
-        <!-- 宠物展示区 -->
-        <div class="pet-display" id="pet-display">
-          <div class="pet-scene">
-            <div id="pet-main" class="pet-main-emoji"></div>
-            <div class="ground"></div>
-          </div>
-          <!-- 思考气泡 -->
-          <div id="thought-bubble" class="thought-bubble hidden">
-            <div class="thought-content">
-              <span id="thought-text"></span>
-              <button id="thought-respond" class="thought-btn">回应</button>
+        <!-- Tab 面板容器 -->
+        <div id="tab-home" class="tab-panel active">
+          <!-- 宠物展示区 -->
+          <div class="pet-display" id="pet-display">
+            <div class="pet-scene">
+              <div id="pet-main" class="pet-main-emoji"></div>
+              <div class="ground"></div>
             </div>
-            <div class="thought-dots"><span></span><span></span><span></span></div>
-          </div>
-          <!-- 宠物说的话 -->
-          <div id="pet-speech" class="pet-speech"></div>
-          <!-- 心心粒子容器 -->
-          <div id="hearts-container" class="hearts-container"></div>
-        </div>
-
-        <!-- 拖拽提示区 -->
-        <div id="drag-hint" class="drag-hint hidden">
-          <span id="drag-hint-text"></span>
-        </div>
-
-        <!-- 状态面板 -->
-        <div class="status-panel">
-          <div class="stat-row">
-            <span class="stat-label">年龄</span>
-            <span id="stat-age" class="stat-value"></span>
-          </div>
-          <div class="stat-row">
-            <span class="stat-label">成长</span>
-            <div class="stat-bar-wrap">
-              <div id="growth-bar" class="stat-bar growth"></div>
-              <span id="stat-growth" class="stat-bar-text"></span>
+            <div id="thought-bubble" class="thought-bubble hidden">
+              <div class="thought-content">
+                <span id="thought-text"></span>
+                <button id="thought-respond" class="thought-btn">回应</button>
+              </div>
+              <div class="thought-dots"><span></span><span></span><span></span></div>
             </div>
+            <div id="pet-speech" class="pet-speech"></div>
+            <div id="hearts-container" class="hearts-container"></div>
           </div>
-          <div class="stat-row">
-            <span class="stat-label">亲密度</span>
-            <div class="stat-bar-wrap">
-              <div id="intimacy-bar" class="stat-bar intimacy"></div>
-              <span id="stat-intimacy" class="stat-bar-text"></span>
+          <div id="drag-hint" class="drag-hint hidden"><span id="drag-hint-text"></span></div>
+
+          <!-- 状态面板 -->
+          <div class="status-panel">
+            <div class="stat-row"><span class="stat-label">年龄</span><span id="stat-age" class="stat-value"></span></div>
+            <div class="stat-row"><span class="stat-label">成长</span><div class="stat-bar-wrap"><div id="growth-bar" class="stat-bar growth"></div><span id="stat-growth" class="stat-bar-text"></span></div></div>
+            <div class="stat-row"><span class="stat-label">亲密度</span><div class="stat-bar-wrap"><div id="intimacy-bar" class="stat-bar intimacy"></div><span id="stat-intimacy" class="stat-bar-text"></span></div></div>
+            <div class="stat-row"><span class="stat-label">饥饿度</span><div class="stat-bar-wrap"><div id="hunger-bar" class="stat-bar hunger"></div><span id="stat-hunger" class="stat-bar-text"></span></div></div>
+            <div class="stat-row"><span class="stat-label">心情</span><div class="stat-bar-wrap"><div id="mood-bar" class="stat-bar mood"></div><span id="stat-mood" class="stat-bar-text"></span></div></div>
+          </div>
+
+          <!-- 拖拽道具 -->
+          <div class="drag-items-section">
+            <h3>拖拽道具到宠物身上</h3>
+            <div class="drag-items-row">
+              <div class="drag-item" draggable="true" data-drag-action="feed" data-drag-emoji="🍖" data-drag-label="食物">🍖</div>
+              <div class="drag-item" draggable="true" data-drag-action="play" data-drag-emoji="🎾" data-drag-label="玩具">🎾</div>
+              <div class="drag-item" draggable="true" data-drag-action="bath" data-drag-emoji="🧴" data-drag-label="浴液">🧴</div>
+              <div class="drag-item" draggable="true" data-drag-action="brush" data-drag-emoji="🪥" data-drag-label="梳子">🪥</div>
+              <div class="drag-item" draggable="true" data-drag-action="toy" data-drag-emoji="🧸" data-drag-label="新玩具">🧸</div>
             </div>
           </div>
-          <div class="stat-row">
-            <span class="stat-label">饥饿度</span>
-            <div class="stat-bar-wrap">
-              <div id="hunger-bar" class="stat-bar hunger"></div>
-              <span id="stat-hunger" class="stat-bar-text"></span>
+
+          <!-- 互动按钮 -->
+          <div class="action-grid">
+            <button class="action-btn" data-action="feed">🍖 喂食</button>
+            <button class="action-btn" data-action="play">🎾 玩耍</button>
+            <button class="action-btn" data-action="bath">🛁 洗澡</button>
+            <button class="action-btn" data-action="walk">🚶 散步</button>
+            <button class="action-btn" data-action="talk">💬 对话</button>
+            <button class="action-btn" data-action="photo">📸 拍照</button>
+            <button class="action-btn" data-action="skill">🎓 教技能</button>
+            <button class="action-btn" data-action="toy">🧸 买玩具</button>
+            <button class="action-btn" data-action="brush">🪥 梳毛</button>
+            <button class="action-btn" data-action="sleep">😴 睡觉</button>
+          </div>
+
+          <!-- 每日任务 -->
+          <div class="daily-tasks">
+            <div class="tasks-header"><h3>每日任务</h3><span id="task-progress" class="task-progress"></span></div>
+            <div id="task-list" class="task-list"></div>
+          </div>
+
+          <!-- 道具栏 -->
+          <div class="inventory-section">
+            <h3>我的道具</h3>
+            <div id="inventory" class="inventory-grid"></div>
+          </div>
+        </div>
+
+        <!-- 家园装修 Tab -->
+        <div id="tab-decor" class="tab-panel">
+          <div class="panel-header">
+            <h2>🏠 我的家园</h2>
+            <span id="decor-coin" class="coin-display">🪙 0</span>
+          </div>
+          <!-- 房间预览 -->
+          <div class="room-preview" id="room-preview">
+            <div class="room-bg">
+              <div class="room-pet-spot" id="room-pet-spot"></div>
+              <div class="room-furniture-grid" id="room-furniture-grid"></div>
             </div>
           </div>
-          <div class="stat-row">
-            <span class="stat-label">心情</span>
-            <div class="stat-bar-wrap">
-              <div id="mood-bar" class="stat-bar mood"></div>
-              <span id="stat-mood" class="stat-bar-text"></span>
+          <!-- 家具商店 -->
+          <div class="shop-section">
+            <h3>🛋️ 家具商店</h3>
+            <div class="shop-grid" id="shop-grid"></div>
+          </div>
+          <!-- 已拥有家具 -->
+          <div class="owned-section">
+            <h3>📦 我的家具 <span id="owned-count"></span></h3>
+            <div class="owned-grid" id="owned-grid"></div>
+          </div>
+        </div>
+
+        <!-- 户外探险 Tab -->
+        <div id="tab-outdoor" class="tab-panel">
+          <div class="panel-header">
+            <h2>🌿 户外探险</h2>
+            <span id="outdoor-coin" class="coin-display">🪙 0</span>
+          </div>
+          <!-- 地点选择 -->
+          <div class="location-grid">
+            <div class="location-card" data-location="park">
+              <div class="location-emoji">🌳</div>
+              <span class="location-name">城市公园</span>
+              <span class="location-desc">散步遛弯，偶遇小伙伴</span>
+            </div>
+            <div class="location-card" data-location="beach">
+              <div class="location-emoji">🏖️</div>
+              <span class="location-name">阳光海滩</span>
+              <span class="location-desc">踏浪拾贝，寻找宝藏</span>
+            </div>
+            <div class="location-card" data-location="forest">
+              <div class="location-emoji">🌲</div>
+              <span class="location-name">神秘森林</span>
+              <span class="location-desc">探索冒险，发现惊喜</span>
+            </div>
+          </div>
+          <!-- 探险场景 -->
+          <div id="explore-scene" class="explore-scene hidden">
+            <div class="explore-bg" id="explore-bg">
+              <div class="explore-pet" id="explore-pet"></div>
+            </div>
+            <div id="explore-event" class="explore-event hidden">
+              <div class="event-card" id="event-card">
+                <div class="event-emoji" id="event-emoji"></div>
+                <div class="event-text" id="event-text"></div>
+                <div class="event-reward" id="event-reward"></div>
+                <button id="event-accept" class="btn-primary" style="font-size:14px;padding:10px 24px;">好的</button>
+              </div>
+            </div>
+            <button id="explore-btn" class="btn-primary explore-go">开始探险</button>
+            <button id="explore-back" class="btn-secondary" style="margin-top:8px;">返回</button>
+          </div>
+          <!-- 探险日志 -->
+          <div class="explore-log">
+            <h3>📜 探险日志</h3>
+            <div id="explore-log-list" class="log-list"></div>
+          </div>
+        </div>
+
+        <!-- 宠物社交 Tab -->
+        <div id="tab-social" class="tab-panel">
+          <div class="panel-header">
+            <h2>🐾 宠物社交</h2>
+            <span id="social-coin" class="coin-display">🪙 0</span>
+          </div>
+          <!-- 我的宠物名片 -->
+          <div class="pet-card-display" id="my-pet-card"></div>
+          <!-- 来访宠物 -->
+          <div class="visit-section">
+            <h3>🐾 今日访客</h3>
+            <div id="visit-list" class="visit-list"></div>
+            <button id="refresh-visitors" class="btn-secondary" style="margin-top:10px;">刷新访客</button>
+          </div>
+          <!-- 比赛 -->
+          <div class="competition-section">
+            <h3>🏆 宠物比赛</h3>
+            <div class="compete-grid" id="compete-grid">
+              <div class="compete-card" data-compete="cute"><div class="compete-emoji">🎀</div><span>选美大赛</span><span class="compete-desc">比拼魅力值</span></div>
+              <div class="compete-card" data-compete="smart"><div class="compete-emoji">🧠</div><span>智力竞赛</span><span class="compete-desc">比拼成长等级</span></div>
+              <div class="compete-card" data-compete="athletic"><div class="compete-emoji">🏃</div><span>运动会</span><span class="compete-desc">比拼心情值</span></div>
+            </div>
+          </div>
+          <div id="compete-result" class="compete-result hidden"></div>
+        </div>
+
+        <!-- 小游戏 Tab -->
+        <div id="tab-games" class="tab-panel">
+          <div class="panel-header">
+            <h2>🎮 小游戏</h2>
+            <span id="games-coin" class="coin-display">🪙 0</span>
+          </div>
+          <!-- 游戏菜单 -->
+          <div id="game-menu" class="game-menu-grid">
+            <div class="game-menu-card" data-minigame="catch">
+              <div class="game-menu-emoji">🍎</div>
+              <span class="game-menu-name">接水果</span>
+              <span class="game-menu-desc">接住掉落的水果，躲避炸弹</span>
+              <span class="game-menu-reward">最高分记录: <span id="catch-high">0</span></span>
+            </div>
+            <div class="game-menu-card" data-minigame="memory">
+              <div class="game-menu-emoji">🃏</div>
+              <span class="game-menu-name">记忆翻牌</span>
+              <span class="game-menu-desc">翻开卡牌找到配对</span>
+              <span class="game-menu-reward">最高分记录: <span id="memory-high">0</span></span>
+            </div>
+            <div class="game-menu-card" data-minigame="runner">
+              <div class="game-menu-emoji">🏃</div>
+              <span class="game-menu-name">跑酷</span>
+              <span class="game-menu-desc">跳跃障碍跑得更远</span>
+              <span class="game-menu-reward">最高分记录: <span id="runner-high">0</span></span>
+            </div>
+          </div>
+          <!-- 游戏画布区 -->
+          <div id="game-area" class="game-area hidden">
+            <div class="game-hud">
+              <span id="game-score">得分: 0</span>
+              <span id="game-timer"></span>
+              <button id="game-quit" class="btn-secondary" style="padding:4px 12px;font-size:12px;">退出</button>
+            </div>
+            <canvas id="game-canvas" width="400" height="500"></canvas>
+            <div id="game-over" class="game-over hidden">
+              <div class="game-over-card">
+                <h3 id="game-over-title">游戏结束</h3>
+                <p id="game-over-score"></p>
+                <p id="game-over-reward"></p>
+                <button id="game-restart" class="btn-primary" style="font-size:14px;padding:10px 24px;">再来一次</button>
+                <button id="game-back-menu" class="btn-secondary" style="margin-left:8px;font-size:14px;padding:10px 24px;">返回</button>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- 可拖拽的道具栏 -->
-        <div class="drag-items-section">
-          <h3>拖拽道具到宠物身上</h3>
-          <div class="drag-items-row">
-            <div class="drag-item" draggable="true" data-drag-action="feed" data-drag-emoji="🍖" data-drag-label="食物">🍖</div>
-            <div class="drag-item" draggable="true" data-drag-action="play" data-drag-emoji="🎾" data-drag-label="玩具">🎾</div>
-            <div class="drag-item" draggable="true" data-drag-action="bath" data-drag-emoji="🧴" data-drag-label="浴液">🧴</div>
-            <div class="drag-item" draggable="true" data-drag-action="brush" data-drag-emoji="🪥" data-drag-label="梳子">🪥</div>
-            <div class="drag-item" draggable="true" data-drag-action="toy" data-drag-emoji="🧸" data-drag-label="新玩具">🧸</div>
-          </div>
-        </div>
-
-        <!-- 互动按钮 -->
-        <div class="action-grid">
-          <button class="action-btn" data-action="feed">🍖 喂食</button>
-          <button class="action-btn" data-action="play">🎾 玩耍</button>
-          <button class="action-btn" data-action="bath">🛁 洗澡</button>
-          <button class="action-btn" data-action="walk">🚶 散步</button>
-          <button class="action-btn" data-action="talk">💬 对话</button>
-          <button class="action-btn" data-action="photo">📸 拍照</button>
-          <button class="action-btn" data-action="skill">🎓 教技能</button>
-          <button class="action-btn" data-action="toy">🧸 买玩具</button>
-          <button class="action-btn" data-action="brush">🪥 梳毛</button>
-          <button class="action-btn" data-action="sleep">😴 睡觉</button>
-        </div>
-
-        <!-- 每日任务 -->
-        <div class="daily-tasks">
-          <div class="tasks-header">
-            <h3>每日任务</h3>
-            <span id="task-progress" class="task-progress"></span>
-          </div>
-          <div id="task-list" class="task-list"></div>
-        </div>
-
-        <!-- 道具栏 -->
-        <div class="inventory-section">
-          <h3>我的道具</h3>
-          <div id="inventory" class="inventory-grid"></div>
+        <!-- 底部导航 -->
+        <div class="bottom-nav">
+          <div class="nav-item active" data-tab="home"><span class="nav-icon">🏠</span><span class="nav-label">家园</span></div>
+          <div class="nav-item" data-tab="decor"><span class="nav-icon">🛋️</span><span class="nav-label">装修</span></div>
+          <div class="nav-item" data-tab="outdoor"><span class="nav-icon">🌿</span><span class="nav-label">探险</span></div>
+          <div class="nav-item" data-tab="social"><span class="nav-icon">🐾</span><span class="nav-label">社交</span></div>
+          <div class="nav-item" data-tab="games"><span class="nav-icon">🎮</span><span class="nav-label">游戏</span></div>
         </div>
       </div>
     </div>
