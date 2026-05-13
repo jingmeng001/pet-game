@@ -16,7 +16,7 @@ const Online = (() => {
         console.warn('Firebase SDK 未加载，离线模式运行');
         return false;
       }
-      firebase.initializeApp(FIREBASE_CONFIG);
+      firebase.initializeApp(firebaseConfig);
       db = firebase.database();
       auth = firebase.auth();
       playersRef = db.ref('players');
