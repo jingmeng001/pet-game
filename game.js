@@ -175,15 +175,15 @@ function loginWithName(name) {
     startGrowthLoop();
     startThoughtBubble();
     startFurnitureBoost();
-    initOnline();
+    try { initOnline(); } catch(e) { console.warn('在线功能初始化失败:', e); }
     startOnlineSync();
     showFloatReward(`欢迎回来，${name}！`);
   } else {
     // New player
     currentPlayer = name;
     state = getDefaultState();
-    initOnline();
     showScreen('adopt');
+    try { initOnline(); } catch(e) { console.warn('在线功能初始化失败:', e); }
   }
 }
 
@@ -1020,14 +1020,18 @@ let giftUnsubscribe = null;
 let messageUnsubscribe = null;
 
 function initOnline() {
-  if (!Online.init()) return;
-  Online.signIn(currentPlayer).then(ok => {
-    if (ok) {
-      Online.setOnline(state);
-      updateOnlineStatus(true);
-      listenOnlineData();
-    }
-  });
+  try {
+    if (!Online.init()) return;
+    Online.signIn(currentPlayer).then(ok => {
+      if (ok) {
+        Online.setOnline(state);
+        updateOnlineStatus(true);
+        listenOnlineData();
+      }
+    }).catch(e => console.warn('在线登录失败:', e));
+  } catch(e) {
+    console.warn('在线功能初始化失败:', e);
+  }
 }
 
 function updateOnlineStatus(online) {
