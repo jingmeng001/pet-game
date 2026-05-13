@@ -1021,14 +1021,31 @@ let messageUnsubscribe = null;
 
 function initOnline() {
   try {
-    if (!Online.init()) return;
-    Online.signIn(currentPlayer).then(ok => {
-      if (ok) {
-        Online.setOnline(state);
-        updateOnlineStatus(true);
-        listenOnlineData();
+    // Firebase 可能还没加载完，延迟重试
+    const tryInit = () => {
+      if (typeof firebase === 'undefined') {
+        // 3秒后重试一次
+        setTimeout(() => {
+          if (typeof firebase === 'undefined') return; // 放弃
+          doInit();
+        }, 3000);
+        return;
       }
-    }).catch(e => console.warn('在线登录失败:', e));
+      doInit();
+    };
+    const doInit = () => {
+      try {
+        if (!Online.init()) return;
+        Online.signIn(currentPlayer).then(ok => {
+          if (ok) {
+            Online.setOnline(state);
+            updateOnlineStatus(true);
+            listenOnlineData();
+          }
+        }).catch(e => console.warn('在线登录失败:', e));
+      } catch(e) { console.warn('在线功能初始化失败:', e); }
+    };
+    tryInit();
   } catch(e) {
     console.warn('在线功能初始化失败:', e);
   }

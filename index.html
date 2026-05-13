@@ -333,13 +333,31 @@
     </div>
   </div>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
+  <!-- 先加载游戏核心，保证基本功能可用 -->
   <script src="firebase-config.js"></script>
   <script src="online.js"></script>
   <script src="game.js"></script>
+
+  <!-- Firebase SDK 异步加载，不阻塞游戏 -->
+  <script>
+    function loadFirebaseScripts() {
+      var scripts = [
+        'https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js',
+        'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js',
+        'https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js'
+      ];
+      var idx = 0;
+      function loadNext() {
+        if (idx >= scripts.length) { window.firebaseLoaded = true; return; }
+        var s = document.createElement('script');
+        s.src = scripts[idx++];
+        s.onload = loadNext;
+        s.onerror = function() { console.warn('Firebase CDN 加载失败，在线功能不可用'); };
+        document.body.appendChild(s);
+      }
+      loadNext();
+    }
+    loadFirebaseScripts();
+  </script>
 </body>
 </html>
