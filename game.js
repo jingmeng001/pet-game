@@ -84,6 +84,7 @@ const AI_VISITORS = [
 
 // ===== Game State =====
 let state = null;
+let currentPlayer = null;
 let thoughtTimer = null;
 let furnitureBoostTimer = null;
 let currentMiniGame = null;
@@ -100,19 +101,69 @@ function getDefaultState() {
 
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
-const screens = { adopt: $('#adopt-screen'), name: $('#name-screen'), game: $('#game-screen') };
+const screens = { login: $('#login-screen'), adopt: $('#adopt-screen'), name: $('#name-screen'), game: $('#game-screen') };
 
-// ===== Save / Load =====
-function save() { state.lastSave = Date.now(); localStorage.setItem('pet_game_state', JSON.stringify(state)); }
-function load() {
-  const raw = localStorage.getItem('pet_game_state');
-  if (raw) { try { state = JSON.parse(raw); return true; } catch(e) {} }
+// ===== Save / Load (namespaced by player name) =====
+function getSaveKey(name) { return `pet_save_${name}`; }
+
+function save() {
+  if (!currentPlayer) return;
+  state.lastSave = Date.now();
+  localStorage.setItem(getSaveKey(currentPlayer), JSON.stringify(state));
+}
+
+function loadPlayer(name) {
+  const raw = localStorage.getItem(getSaveKey(name));
+  if (raw) { try { state = JSON.parse(raw); currentPlayer = name; return true; } catch(e) {} }
   return false;
+}
+
+// Get all saved players
+function getAllSaves() {
+  const saves = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith('pet_save_')) {
+      const name = key.replace('pet_save_', '');
+      try {
+        const data = JSON.parse(localStorage.getItem(key));
+        if (data && data.petType) {
+          saves.push({ name, petType: data.petType, petName: data.petName, growth: data.growth, coins: data.coins || 0, lastSave: data.lastSave });
+        }
+      } catch(e) {}
+    }
+  }
+  // Also check for old un-namespaced save and migrate
+  const oldSave = localStorage.getItem('pet_game_state');
+  if (oldSave) {
+    try {
+      const data = JSON.parse(oldSave);
+      if (data && data.petType) {
+        saves.push({ name: '(旧存档)', petType: data.petType, petName: data.petName, growth: data.growth, coins: data.coins || 0, lastSave: data.lastSave, isOld: true, rawData: data });
+      }
+    } catch(e) {}
+  }
+  return saves;
+}
+
+function deleteSave(name) {
+  localStorage.removeItem(getSaveKey(name));
 }
 
 // ===== Init =====
 function init() {
-  if (load() && state.petType) {
+  showScreen('login');
+  renderLoginSaves();
+  bindEvents();
+}
+
+function loginWithName(name) {
+  if (!name) return;
+  name = name.trim();
+  if (!name) return;
+
+  if (loadPlayer(name) && state.petType) {
+    // Existing save found
     if (!state.coins) state.coins = 0;
     if (!state.furniture) state.furniture = [];
     if (!state.placedFurniture) state.placedFurniture = [];
@@ -124,10 +175,88 @@ function init() {
     startGrowthLoop();
     startThoughtBubble();
     startFurnitureBoost();
+    showFloatReward(`欢迎回来，${name}！`);
   } else {
+    // New player
+    currentPlayer = name;
+    state = getDefaultState();
     showScreen('adopt');
   }
-  bindEvents();
+}
+
+function migrateOldSave(name) {
+  const oldSave = localStorage.getItem('pet_game_state');
+  if (oldSave) {
+    try {
+      const data = JSON.parse(oldSave);
+      if (data && data.petType) {
+        currentPlayer = name;
+        state = data;
+        save(); // Save under new namespaced key
+        localStorage.removeItem('pet_game_state'); // Remove old key
+        if (!state.coins) state.coins = 0;
+        if (!state.furniture) state.furniture = [];
+        if (!state.placedFurniture) state.placedFurniture = [];
+        if (!state.exploreLog) state.exploreLog = [];
+        if (!state.highScores) state.highScores = { catch: 0, memory: 0, runner: 0 };
+        checkDayReset();
+        showScreen('game');
+        renderGame();
+        startGrowthLoop();
+        startThoughtBubble();
+        startFurnitureBoost();
+        showFloatReward('旧存档已迁移！');
+        return true;
+      }
+    } catch(e) {}
+  }
+  return false;
+}
+
+function renderLoginSaves() {
+  const saves = getAllSaves();
+  const container = $('#login-saves');
+  const list = $('#saves-list');
+  if (saves.length === 0) {
+    container.classList.add('hidden');
+    return;
+  }
+  container.classList.remove('hidden');
+  list.innerHTML = saves.map(s => {
+    const pet = PETS[s.petType];
+    const stage = STAGES.filter(st => s.growth >= st.min).pop() || STAGES[0];
+    const dateStr = s.lastSave ? new Date(s.lastSave).toLocaleDateString() : '';
+    return `<div class="save-item" data-save-name="${s.name}" data-is-old="${s.isOld || false}">
+      <div class="save-emoji">${pet?.emoji || '🐾'}</div>
+      <div class="save-info">
+        <span class="save-name">${s.name}</span>
+        <span class="save-detail">${s.petName} | ${stage.name} | 🪙${s.coins} ${dateStr ? '| ' + dateStr : ''}</span>
+      </div>
+      ${s.isOld ? '<span style="font-size:11px;color:#ff9800;">迁移</span>' : '<button class="save-delete" title="删除存档">🗑️</button>'}
+    </div>`;
+  }).join('');
+
+  list.querySelectorAll('.save-item').forEach(el => {
+    el.addEventListener('click', (e) => {
+      if (e.target.closest('.save-delete')) {
+        e.stopPropagation();
+        const name = el.dataset.saveName;
+        if (confirm(`确定删除「${name}」的存档吗？`)) {
+          deleteSave(name);
+          renderLoginSaves();
+        }
+        return;
+      }
+      const saveName = el.dataset.saveName;
+      const isOld = el.dataset.isOld === 'true';
+      if (isOld) {
+        migrateOldSave($('#login-name-input').value.trim() || saveName);
+      } else {
+        $('#login-name-input').value = saveName;
+        loginWithName(saveName);
+      }
+    });
+  });
 }
 
 function selectPet(type) {
@@ -883,6 +1012,26 @@ function renderInventory() {
 
 // ===== Event Binding =====
 function bindEvents() {
+  // Login
+  $('#login-btn').addEventListener('click', () => loginWithName($('#login-name-input').value));
+  $('#login-name-input').addEventListener('keydown', e => { if (e.key === 'Enter') loginWithName($('#login-name-input').value); });
+
+  // Logout
+  $('#logout-btn').addEventListener('click', () => {
+    if (confirm('确定要切换账号吗？当前进度已自动保存。')) {
+      save();
+      if (thoughtTimer) clearInterval(thoughtTimer);
+      if (furnitureBoostTimer) clearInterval(furnitureBoostTimer);
+      if (growthTimer) clearInterval(growthTimer);
+      if (miniGameRAF) { cancelAnimationFrame(miniGameRAF); miniGameRAF = null; }
+      state = null;
+      currentPlayer = null;
+      showScreen('login');
+      renderLoginSaves();
+      $('#login-name-input').value = '';
+    }
+  });
+
   $$('.pet-card').forEach(card => card.addEventListener('click', () => selectPet(card.dataset.pet)));
   $('#confirm-name-btn').addEventListener('click', confirmName);
   $('#pet-name-input').addEventListener('keydown', e => { if (e.key === 'Enter') confirmName(); });

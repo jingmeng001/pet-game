@@ -24,6 +24,25 @@ body {
 .pet-card .pet-name { font-weight: 700; font-size: 16px; color: #333; }
 .pet-card .pet-desc { font-size: 12px; color: #999; }
 
+/* ===== Login ===== */
+.login-container { text-align: center; padding-top: 80px; animation: fadeInUp 0.6s ease-out; }
+.login-logo { font-size: 80px; margin-bottom: 16px; animation: bounce 2s infinite; }
+.login-container h1 { font-size: 28px; color: #e91e63; margin-bottom: 8px; text-shadow: 0 2px 4px rgba(233,30,99,0.2); }
+.login-container input { display: block; width: 280px; margin: 24px auto 16px; padding: 14px 20px; border: 3px solid #ce93d8; border-radius: 30px; font-size: 18px; text-align: center; outline: none; transition: border-color 0.3s; }
+.login-container input:focus { border-color: #7b1fa2; }
+.login-saves { margin-top: 24px; animation: fadeIn 0.3s; }
+.login-saves.hidden { display: none; }
+.saves-hint { font-size: 13px; color: #888; margin-bottom: 10px; }
+.saves-list { display: flex; flex-direction: column; gap: 8px; max-width: 280px; margin: 0 auto; }
+.save-item { background: white; border-radius: 14px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: all 0.2s; border: 2px solid transparent; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.save-item:hover { border-color: #f48fb1; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(244,143,177,0.2); }
+.save-emoji { font-size: 32px; }
+.save-info { text-align: left; flex: 1; }
+.save-name { font-size: 15px; font-weight: 700; color: #333; display: block; }
+.save-detail { font-size: 11px; color: #999; display: block; margin-top: 2px; }
+.save-delete { background: none; border: none; font-size: 16px; cursor: pointer; padding: 4px; opacity: 0.4; transition: opacity 0.2s; }
+.save-delete:hover { opacity: 1; }
+
 /* ===== Name ===== */
 .name-container { text-align: center; padding-top: 60px; animation: fadeInUp 0.4s ease-out; }
 .name-container h2 { font-size: 22px; color: #7b1fa2; margin-bottom: 20px; }
