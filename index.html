@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>宠物养成小游戏</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- 领养页面 -->
+    <div id="adopt-screen" class="screen active">
+      <div class="adopt-container">
+        <h1>选择你的宠物伙伴</h1>
+        <p class="subtitle">每只宠物都渴望一个温暖的家</p>
+        <div class="pet-select-grid">
+          <div class="pet-card" data-pet="cat">
+            <div class="pet-emoji">🐱</div>
+            <span class="pet-name">小猫咪</span>
+            <span class="pet-desc">温柔可爱，喜欢撒娇</span>
+          </div>
+          <div class="pet-card" data-pet="dog">
+            <div class="pet-emoji">🐶</div>
+            <span class="pet-name">小狗狗</span>
+            <span class="pet-desc">忠诚活泼，喜欢奔跑</span>
+          </div>
+          <div class="pet-card" data-pet="rabbit">
+            <div class="pet-emoji">🐰</div>
+            <span class="pet-name">小兔子</span>
+            <span class="pet-desc">乖巧安静，喜欢胡萝卜</span>
+          </div>
+          <div class="pet-card" data-pet="hamster">
+            <div class="pet-emoji">🐹</div>
+            <span class="pet-name">小仓鼠</span>
+            <span class="pet-desc">圆滚滚，爱囤粮食</span>
+          </div>
+          <div class="pet-card" data-pet="bird">
+            <div class="pet-emoji">🐦</div>
+            <span class="pet-name">小鹦鹉</span>
+            <span class="pet-desc">聪明伶俐，会学说话</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 取名页面 -->
+    <div id="name-screen" class="screen">
+      <div class="name-container">
+        <h2>给你的小伙伴取个名字吧</h2>
+        <div id="name-preview" class="name-preview"></div>
+        <input type="text" id="pet-name-input" placeholder="输入宠物名字..." maxlength="10">
+        <button id="confirm-name-btn" class="btn-primary">确认领养</button>
+        <button id="back-to-select" class="btn-secondary">重新选择</button>
+      </div>
+    </div>
+
+    <!-- 主游戏页面 -->
+    <div id="game-screen" class="screen">
+      <div class="game-container">
+        <!-- 顶部状态栏 -->
+        <div class="top-bar">
+          <div class="pet-info-header">
+            <span id="game-pet-emoji" class="header-emoji"></span>
+            <span id="game-pet-name" class="header-name"></span>
+            <span id="game-pet-stage" class="header-stage"></span>
+          </div>
+          <div class="top-actions">
+            <button id="save-btn" class="btn-icon" title="保存进度">💾</button>
+          </div>
+        </div>
+
+        <!-- 宠物展示区 -->
+        <div class="pet-display">
+          <div class="pet-scene">
+            <div id="pet-main" class="pet-main-emoji"></div>
+            <div class="ground"></div>
+          </div>
+          <div id="pet-speech" class="pet-speech"></div>
+        </div>
+
+        <!-- 状态面板 -->
+        <div class="status-panel">
+          <div class="stat-row">
+            <span class="stat-label">年龄</span>
+            <span id="stat-age" class="stat-value"></span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">成长</span>
+            <div class="stat-bar-wrap">
+              <div id="growth-bar" class="stat-bar growth"></div>
+              <span id="stat-growth" class="stat-bar-text"></span>
+            </div>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">亲密度</span>
+            <div class="stat-bar-wrap">
+              <div id="intimacy-bar" class="stat-bar intimacy"></div>
+              <span id="stat-intimacy" class="stat-bar-text"></span>
+            </div>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">饥饿度</span>
+            <div class="stat-bar-wrap">
+              <div id="hunger-bar" class="stat-bar hunger"></div>
+              <span id="stat-hunger" class="stat-bar-text"></span>
+            </div>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">心情</span>
+            <div class="stat-bar-wrap">
+              <div id="mood-bar" class="stat-bar mood"></div>
+              <span id="stat-mood" class="stat-bar-text"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 互动按钮 -->
+        <div class="action-grid">
+          <button class="action-btn" data-action="feed">🍖 喂食</button>
+          <button class="action-btn" data-action="play">🎾 玩耍</button>
+          <button class="action-btn" data-action="bath">🛁 洗澡</button>
+          <button class="action-btn" data-action="walk">🚶 散步</button>
+          <button class="action-btn" data-action="talk">💬 对话</button>
+          <button class="action-btn" data-action="photo">📸 拍照</button>
+          <button class="action-btn" data-action="skill">🎓 教技能</button>
+          <button class="action-btn" data-action="toy">🧸 买玩具</button>
+          <button class="action-btn" data-action="brush">🪥 梳毛</button>
+          <button class="action-btn" data-action="sleep">😴 睡觉</button>
+        </div>
+
+        <!-- 每日任务 -->
+        <div class="daily-tasks">
+          <div class="tasks-header">
+            <h3>每日任务</h3>
+            <span id="task-progress" class="task-progress"></span>
+          </div>
+          <div id="task-list" class="task-list"></div>
+        </div>
+
+        <!-- 道具栏 -->
+        <div class="inventory-section">
+          <h3>我的道具</h3>
+          <div id="inventory" class="inventory-grid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
